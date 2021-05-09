@@ -1,8 +1,8 @@
 import React,{useState} from 'react';
-import SimpleReactValidator from 'simple-react-validator';
-import { Form, Col, Button, InputGroup, Row,Modal } from 'react-bootstrap';
+import { Form, Col, Button, InputGroup, Row } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import axios from "axios";
 import { FaChevronDown } from 'react-icons/fa';
 import SuccessModal from './modal'
 import './form.css'
@@ -32,7 +32,6 @@ const schema = Yup.object().shape({
     .max(10, 'Mobile number must be exactly 10 digits'),
   birthDate: Yup.string().required('Date of birth is a required field')
     .test("birthDate", "You must be 18 or older", (userdob) => {
-      console.log("jjj", userdob)
       const userAge = new Date(userdob);
       const now = new Date();
       const currentYear = now.getFullYear();
@@ -42,8 +41,6 @@ const schema = Yup.object().shape({
       const age = has_had_birthday_this_year
         ? year_diff
         : year_diff - 1;
-      console.log('aa', age)
-      console.log('ggg', age >= 18);
       return age >= 18;
     }),
   occupation: Yup.string().oneOf(
@@ -70,9 +67,9 @@ const schema = Yup.object().shape({
     'Invalid marital status'
   )
     .required('Marital status is a required field'),
-  height: Yup.string().required('Height is a required field').max(10)
+  height: Yup.string().required('Height is a required field').min(2).max(10)
     .matches(/^([1-9]){1}[0-9]+$/, "Must be only digits"),
-  weight: Yup.string().required('Weight is a required field').max(10)
+  weight: Yup.string().required('Weight is a required field').min(2).max(10)
     .matches(/^([1-9]){1}[0-9]+$/, "Must be only digits"),
   nomineeFirstName: Yup.string().required('First name is a required field').max(30)
     .matches(/^[a-zA-Z]+$/, "Must be only character"),
@@ -87,7 +84,6 @@ const schema = Yup.object().shape({
     .required('Relationship is a required field'),
   nomineeBirthDate: Yup.string().required('Date of birth is a required field')
     .test("nomineeBirthDate", "You must be 18 or older", (nomineedob) => {
-      console.log("jjj", nomineedob)
       const userAge = new Date(nomineedob);
       const now = new Date();
       const currentYear = now.getFullYear();
@@ -97,8 +93,6 @@ const schema = Yup.object().shape({
       const age = has_had_birthday_this_year
         ? year_diff
         : year_diff - 1;
-      console.log('aa', age)
-      console.log('ggg', age >= 18);
       return age >= 18;
     }),
   nomineeGender: Yup.string().oneOf(
@@ -108,7 +102,7 @@ const schema = Yup.object().shape({
     .required('Gender is a required field')
 });
 function FormExample() {
-  const [modalShow, setModalShow] = React.useState(false);
+  const [modalShow, setModalShow] = useState(false);
   return (
   	<>
     <Formik
@@ -135,22 +129,15 @@ function FormExample() {
         nomineeBirthDate: '',
         nomineeGender: ''
       }}
-      onSubmit={(values, { setSubmitting, resetForm }) => {
-        // setTimeout(() => {
-        //   // alert(JSON.stringify(values, null, 2));
-          
-        // }, 400);
-        alert(JSON.stringify(values))
-
-        return async function getMoviesForCardsThunk() {
-    const params = { name: "title", movies:['gg'] }
-    const response = await axios.post('https://reqres.in/api/users', { params: params })
-   console.log('rr',response)
-   setModalShow(true)
+      onSubmit={async (values, { setSubmitting, resetForm }) => {
+        // alert(JSON.stringify(values))
+        const data = { name: values.firstName+values.middleName+values.lastName, movies:[values] }
+        const response = await axios.post('https://reqres.in/api/users', { data: data })
+        if(response.data.id){
+          setModalShow(true);
           setSubmitting(false);
-          resetForm();
-  }
-        
+          resetForm(); 
+        }
       }}
     >
       {({
@@ -179,7 +166,7 @@ function FormExample() {
 	                    <option value="Ms">Ms</option>
 	                    <option value="Mrs">Mrs</option>
 	                  </Form.Control>
-	                  <span class="input-group-text"><FaChevronDown /></span>
+	                  <span className="input-group-text"><FaChevronDown /></span>
 	                  <Form.Control.Feedback type="invalid">
 	                    {errors.salutation}
 	                  </Form.Control.Feedback>
@@ -241,7 +228,7 @@ function FormExample() {
 	                    <option value="Male">Male</option>
 	                    <option value="Female">Female</option>
 	                  </Form.Control>
-	                  <span class="input-group-text"><FaChevronDown /></span>
+	                  <span className="input-group-text"><FaChevronDown /></span>
 	                  <Form.Control.Feedback type="invalid">
 	                    {errors.gender}
 	                  </Form.Control.Feedback>
@@ -304,7 +291,7 @@ function FormExample() {
 	                    <option value="Business">Business</option>
 	                    <option value="Student">Student</option>
 	                  </Form.Control>
-	                  <span class="input-group-text"><FaChevronDown /></span>
+	                  <span className="input-group-text"><FaChevronDown /></span>
 	                  <Form.Control.Feedback type="invalid">
 	                    {errors.occupation}
 	                  </Form.Control.Feedback>
@@ -352,7 +339,7 @@ function FormExample() {
 	                    <option value="divorced">Divorced</option>
 	                    <option value="widowed">Widowed</option>
 	                  </Form.Control>
-	                  <span class="input-group-text"><FaChevronDown /></span>
+	                  <span className="input-group-text"><FaChevronDown /></span>
 	                  <Form.Control.Feedback type="invalid">
 	                    {errors.maritalStatus}
 	                  </Form.Control.Feedback>
@@ -452,7 +439,7 @@ function FormExample() {
 	                    <option value="sister">Sister</option>
 	                    <option value="brother">Brother</option>
 	                  </Form.Control>
-	                  <span class="input-group-text"><FaChevronDown /></span>
+	                  <span className="input-group-text"><FaChevronDown /></span>
 	                  <Form.Control.Feedback type="invalid">
 	                    {errors.relationship}
 	                  </Form.Control.Feedback>
@@ -484,7 +471,7 @@ function FormExample() {
 	                    <option value="Male">Male</option>
 	                    <option value="Female">Female</option>
 	                  </Form.Control>
-	                  <span class="input-group-text"><FaChevronDown /></span>
+	                  <span className="input-group-text"><FaChevronDown /></span>
 	                  <Form.Control.Feedback type="invalid">
 	                    {errors.nomineeGender}
 	                  </Form.Control.Feedback>
