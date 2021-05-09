@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import axios from "axios";
 import { FaChevronDown } from 'react-icons/fa';
 import SuccessModal from './modal'
+import Loader from './loader'
 import './form.css'
 const schema = Yup.object().shape({
   salutation: Yup.string().oneOf(
@@ -103,6 +104,12 @@ const schema = Yup.object().shape({
 });
 function FormExample() {
   const [modalShow, setModalShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  if (loading) {
+    return (
+      <Loader />
+    )
+  }
   return (
   	<>
     <Formik
@@ -131,12 +138,14 @@ function FormExample() {
       }}
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         // alert(JSON.stringify(values))
+        setLoading(true)
         const data = { name: values.firstName+values.middleName+values.lastName, movies:[values] }
         const response = await axios.post('https://reqres.in/api/users', { data: data })
         if(response.data.id){
           setModalShow(true);
           setSubmitting(false);
-          resetForm(); 
+          resetForm();
+          setLoading(false) 
         }
       }}
     >

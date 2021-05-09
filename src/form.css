@@ -95,6 +95,7 @@ hr{
 @media (max-width: 576px) { 
 	.mainContainer {
 		padding: 0px 15px 30px;
+		width: 95%;
 	}
 	.formExample .nomineeDetails {
 	    margin-bottom: 15px;
